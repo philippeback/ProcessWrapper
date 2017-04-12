@@ -1,0 +1,38 @@
+DLLTOOL=dlltool
+DLLWRAP=dllwrap
+OBJDIR=./build
+
+CPP  = g++.exe
+CC   = gcc.exe
+
+LIB=ProcessWrapperPlugin
+LIBOBJ=$(LIB).o
+LIBS=-lstdc++
+
+#Copied from VM code
+
+CINCS = -I./include
+CFLAGS = $(CINCS) -W -Wall -DLOGGING_ENABLED -nostdlib -mwindows -march=i586 -O3 -fomit-frame-pointer -funroll-loops -s
+
+#-ansi
+
+#crtdll.dll is in C:\MinGW\Bin
+
+makedll: $(LIBOBJ)
+	$(DLLTOOL) \
+		--output-def $(OBJDIR)/$(LIB).def \
+		--output-exp $(OBJDIR)/$(LIB).exp \
+		--output-lib $(OBJDIR)/$(LIB).lib \
+		$(LIBOBJ)
+	$(DLLWRAP) -mwindows \
+		-def $(OBJDIR)/$(LIB).def \
+		-o   $(OBJDIR)/$(LIB).dll \
+		$(LIBS) \
+		$(OBJDIR)/$(LIB).exp \
+		$(LIBOBJ) \
+	    ./ProcessWrapper/ProcessWrapper.a -lstdc++
+	strip --strip-all $(OBJDIR)/$(LIB).dll
+	-$(RM) -f $(LIBOBJ) $(LIB).lib $(LIB).exp $(LIB).def
+
+.c.o: 
+	$(CC) -c $< -o $@ $(CFLAGS)

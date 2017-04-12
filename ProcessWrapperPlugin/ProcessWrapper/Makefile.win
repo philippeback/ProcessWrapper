@@ -1,0 +1,23 @@
+# Project: ProcessWrapper
+
+CPP  = g++.exe
+CC   = gcc.exe
+OBJ  = main.o ExternalProcess.o Event.o Mutex.o SharedBuffer.o PipeFeeder.o PipeReader.o Logger.o LogLevel.o SqueakSemaphore.o ProcessWaiter.o
+LINKOBJ  = main.o ExternalProcess.o Event.o Mutex.o SharedBuffer.o PipeFeeder.o PipeReader.o Logger.o LogLevel.o SqueakSemaphore.o ProcessWaiter.o
+BIN  = ProcessWrapper.a
+CXXFLAGS = $(CXXINCS) -W -Wall -ansi -DLOGGING_ENABLED -nostdlib -mwindows -march=i586 -O3 -fomit-frame-pointer -funroll-loops -s
+RM = rm -f
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before ProcessWrapper.a all-after
+
+clean: clean-custom
+	${RM} $(OBJ) $(BIN)
+
+$(BIN): $(LINKOBJ)
+	ar r $(BIN) $(LINKOBJ)
+	ranlib $(BIN)
+
+.cpp.o: 
+	$(CPP) -c $< -o $@ $(CXXFLAGS)
